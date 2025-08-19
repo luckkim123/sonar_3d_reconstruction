@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>sonar_3d_reconstruction</name>
+  <version>1.0.0</version>
+  <description>소나 센서 융합을 통한 3D 해저 지형 재구성 및 ROV 추적 시스템</description>
+  <maintainer email="luckkim123@gmail.com">root</maintainer>
+  <license>MIT</license>
+
+  <author email="luckkim123@gmail.com">Seungmin Kim</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+
+  <!-- Core ROS2 dependencies -->
+  <depend>rclcpp</depend>
+  <depend>rclpy</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  
+  <!-- Sonar message dependencies -->
+  <depend>marine_acoustic_msgs</depend>
+  <depend>oculus_sonar_msgs</depend>
+  <depend>ping360_sonar_msgs</depend>
+  
+  <!-- Point cloud and TF dependencies -->
+  <depend>pcl_ros</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_eigen</depend>
+  
+  <!-- Python dependencies -->
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-scipy</exec_depend>
+  <exec_depend>python3-opencv</exec_depend>
+  <exec_depend>python3-matplotlib</exec_depend>
+  
+  <!-- System dependencies -->
+  <depend>libpcl-all-dev</depend>
+  <depend>libeigen3-dev</depend>
+  
+  <!-- Visualization dependencies -->
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>rviz_common</exec_depend>
+  
+  <!-- Sensor driver dependencies -->
+  <exec_depend>oculus_sonar</exec_depend>
+  <exec_depend>ping360_sonar</exec_depend>
+  <exec_depend>fast_lio</exec_depend>
+  
+  <!-- Build dependencies -->
+  <build_depend>eigen3_cmake_module</build_depend>
+  
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
