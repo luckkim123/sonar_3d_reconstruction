@@ -1,0 +1,76 @@
+# Parameter Configuration for 3D Sonar Mapper
+# Priority order (highest to lowest):
+# 1. Command line args: ros2 run/launch ... --ros-args -p param:=value
+# 2. This YAML file
+# 3. Launch file parameters
+# 4. Node defaults (3d_mapper_node.py)
+# 5. Library defaults (3d_mapper.py)
+
+sonar_3d_mapper:
+  ros__parameters:
+    # Sonar sensor parameters
+    horizontal_fov: 70.0        # Horizontal field of view in degrees
+    vertical_aperture: 20.0      # Vertical beam aperture in degrees
+    max_range: 10.0              # Maximum sonar range in meters
+    min_range: 0.5               # Minimum range to filter noise in meters
+    intensity_threshold: 35      # Intensity threshold for occupied detection (0-255)
+    
+    # Sonar mounting configuration (relative to base_link)
+    # IMPORTANT: This configuration assumes REAL WORLD sensor coordinates
+    # Sonar frame: +X forward, +Y right, +Z down (Oculus M750d standard)
+    # For simulators (Gazebo), adjust orientation accordingly
+    sonar_position:
+      x: 0.0                     # Forward/backward offset from base_link
+      y: 0.0                     # Left/right offset from base_link
+      z: -0.1                    # Up/down offset (0.5m below base_link)
+    
+    sonar_orientation:
+      # For REAL WORLD (Oculus M750d on BlueBoat):
+      roll: 0.0                  # Rotation around X axis (degrees)
+      pitch: 90.0                # Rotation around Y axis (degrees, 90 = pointing down)
+      yaw: 180.0                   # Rotation around Z axis (degrees)
+      
+      # For SIMULATOR (Gazebo with ROS standard coordinates):
+      # roll: 180.0              # Flip Z axis (up/down)
+      # pitch: 90.0              # Keep same
+      # yaw: 180.0               # Flip Y axis (left/right)
+    
+    # Octree voxel storage parameters
+    voxel_resolution: 0.2        # Voxel size in meters (20cm) - TEST
+    min_probability: 0.6         # Minimum probability to consider voxel occupied
+    dynamic_expansion: true      # Enable dynamic map expansion without fixed bounds
+    
+    # Adaptive update parameters (protect free space from noise)
+    adaptive_update: true        # Enable adaptive updating
+    adaptive_threshold: 0.5      # Probability threshold for protection
+    adaptive_max_ratio: 0.3      # Maximum update ratio at threshold
+    
+    # Log-odds Bayesian update parameters
+    log_odds_occupied: 1.5       # Log-odds increment for occupied voxel
+    log_odds_free: -2.0          # Log-odds decrement for free space
+    log_odds_min: -10.0          # Minimum log-odds value (clamping)
+    log_odds_max: 10.0           # Maximum log-odds value (clamping)
+    
+    # Publishing parameters
+    show_free_space: false       # Show free space voxels in MarkerArray
+    
+    # Frame IDs (aligned with Fast-LIO)
+    sonar_frame_id: "sonar_link"
+    base_frame_id: "body"          # Fast-LIO uses "body" for robot frame
+    map_frame_id: "camera_init"    # Fast-LIO uses "camera_init" for map frame
+    publish_tf: false            # Use TF from bag file instead
+    
+    # ROS2 Topics (for KIRO water tank data)
+    sonar_topic: "/sensor/sonar/oculus/m750d/image"
+    odometry_topic: "/fast_lio/odometry"
+    pointcloud_topic: "/sonar_3d_map"
+    marker_topic: "/sonar_3d_map_markers"
+    
+    # Use simulation time for bag playback
+    use_sim_time: true
+    
+    # Launch configuration
+    launch_fast_lio: true        # Launch Fast-LIO for odometry
+    launch_rviz: true            # Launch RViz for visualization
+    play_bag: true              # Auto-play bag file
+    bag_file: "/workspace/data/2_kiro_watertank/20250926_blueboat_sonar_lidar/oculus-tilt90-gain50-freq2"

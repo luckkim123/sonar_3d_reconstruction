@@ -1,0 +1,11 @@
+{
+  "names": {
+    "sonar_3d_reconstruction": {
+      "dependencies": [
+        "marine_acoustic_msgs",
+        "oculus_sonar_msgs", 
+        "ping360_sonar_msgs"
+      ]
+    }
+  }
+}

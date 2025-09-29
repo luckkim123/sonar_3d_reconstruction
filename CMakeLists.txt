@@ -13,12 +13,14 @@ find_package(rclpy REQUIRED)
 # Install Python executable scripts (install(PROGRAMS) automatically sets executable permissions)
 install(PROGRAMS
   scripts/octree_sonar_mapper_node.py
+  scripts/3d_mapper_node.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
 # Install Python modules (non-executable Python files)
 install(FILES
   scripts/octree_mapper.py
+  scripts/3d_mapper.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

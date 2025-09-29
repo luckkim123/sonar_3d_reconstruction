@@ -19,10 +19,13 @@
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
   
-  <!-- Sonar message dependencies -->
-  <depend>marine_acoustic_msgs</depend>
-  <depend>oculus_sonar_msgs</depend>
-  <depend>ping360_sonar_msgs</depend>
+  <!-- Sonar message dependencies (build first) -->
+  <build_depend>marine_acoustic_msgs</build_depend>
+  <build_depend>oculus_sonar_msgs</build_depend>
+  <build_depend>ping360_sonar_msgs</build_depend>
+  <exec_depend>marine_acoustic_msgs</exec_depend>
+  <exec_depend>oculus_sonar_msgs</exec_depend>
+  <exec_depend>ping360_sonar_msgs</exec_depend>
   
   <!-- Point cloud and TF dependencies -->
   <depend>pcl_ros</depend>
@@ -34,22 +37,21 @@
   <exec_depend>python3-scipy</exec_depend>
   <exec_depend>python3-opencv</exec_depend>
   <exec_depend>python3-matplotlib</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
   
-  <!-- System dependencies -->
-  <depend>libpcl-all-dev</depend>
-  <depend>libeigen3-dev</depend>
+  <!-- Message filter for time sync -->
+  <exec_depend>message_filters</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>visualization_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
   
-  <!-- Visualization dependencies -->
-  <exec_depend>rviz2</exec_depend>
-  <exec_depend>rviz_common</exec_depend>
-  
-  <!-- Sensor driver dependencies -->
+  <!-- Sensor driver dependencies (runtime only) -->
   <exec_depend>oculus_sonar</exec_depend>
   <exec_depend>ping360_sonar</exec_depend>
   <exec_depend>fast_lio</exec_depend>
   
-  <!-- Build dependencies -->
-  <build_depend>eigen3_cmake_module</build_depend>
+  <!-- Visualization dependencies (optional) -->
+  <exec_depend>rviz2</exec_depend>
   
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
