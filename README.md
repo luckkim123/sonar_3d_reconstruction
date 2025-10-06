@@ -153,7 +153,7 @@ ros2 launch sonar_3d_reconstruction 3d_mapping.launch.py
 
 # 다른 bag 파일 사용
 ros2 launch sonar_3d_reconstruction 3d_mapping.launch.py \
-  bag_file:=/workspace/data/2_kiro_watertank/20250926_blueboat_sonar_lidar/oculus-tilt30-gain50-freq2
+  bag_file:=/workspace/data/2_kiro_watertank/20250926_blueboat_sonar_lidar/oculus-tilt60-gain50-freq2
 ```
 
 ## Key Features

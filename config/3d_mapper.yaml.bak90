@@ -27,7 +27,7 @@ sonar_3d_mapper:
     sonar_orientation:
       # For REAL WORLD (Oculus M750d on BlueBoat):
       roll: 0.0                  # Rotation around X axis (degrees)
-      pitch: 60.0                # Rotation around Y axis (degrees, 90 = pointing down)
+      pitch: 90.0                # Rotation around Y axis (degrees, 90 = pointing down)
       yaw: 0.0                   # Rotation around Z axis (degrees)
       
       # For SIMULATOR (Gazebo with ROS standard coordinates):
@@ -41,7 +41,7 @@ sonar_3d_mapper:
     dynamic_expansion: true      # Enable dynamic map expansion without fixed bounds
     
     # Z-axis filtering (remove voxels below this height)
-    z_filter_min: -6.3           # Minimum Z value in meters (negative = below water surface)
+    z_filter_min: -5.0           # Minimum Z value in meters (negative = below water surface)
     z_filter_enabled: true       # Enable Z-axis filtering
     
     # Adaptive update parameters (protect free space from noise)
@@ -51,7 +51,7 @@ sonar_3d_mapper:
     
     # Log-odds Bayesian update parameters
     log_odds_occupied: 2.0       # Log-odds increment for occupied voxel
-    log_odds_free: -1.0          # Log-odds decrement for free space
+    log_odds_free: -1.5          # Log-odds decrement for free space
     log_odds_min: -10.0          # Minimum log-odds value (clamping)
     log_odds_max: 10.0           # Maximum log-odds value (clamping)
     
@@ -80,4 +80,4 @@ sonar_3d_mapper:
     launch_fast_lio: true        # Launch Fast-LIO for odometry
     launch_rviz: true            # Launch RViz for visualization
     play_bag: true              # Auto-play bag file
-    bag_file: "/workspace/data/2_kiro_watertank/20250926_blueboat_sonar_lidar/oculus-tilt60-gain50-freq2"
+    bag_file: "/workspace/data/2_kiro_watertank/20250926_blueboat_sonar_lidar/oculus-tilt90-gain50-freq2"

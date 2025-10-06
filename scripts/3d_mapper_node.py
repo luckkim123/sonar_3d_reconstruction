@@ -27,6 +27,7 @@ from message_filters import Subscriber, ApproximateTimeSynchronizer
 
 # OpenCV for image processing
 from cv_bridge import CvBridge
+import cv2
 
 # Import core mapping class (using import with underscores since Python doesn't allow starting with numbers)
 import sys
@@ -71,6 +72,8 @@ class SonarMapperNode(Node):
                 ('voxel_resolution', 0.05),
                 ('min_probability', 0.6),
                 ('dynamic_expansion', True),
+                ('z_filter_min', -5.0),
+                ('z_filter_enabled', True),
                 
                 # Adaptive update parameters
                 ('adaptive_update', True),
@@ -96,7 +99,10 @@ class SonarMapperNode(Node):
                 ('sonar_topic', '/sensor/sonar/oculus/m750d/image'),
                 ('odometry_topic', '/fast_lio/odometry'),
                 ('pointcloud_topic', '/sonar_3d_map'),
-                ('marker_topic', '/sonar_3d_map_markers')
+                ('marker_topic', '/sonar_3d_map_markers'),
+                
+                # Visualization
+                ('show_opencv_visualization', False)
             ]
         )
         
@@ -128,6 +134,8 @@ class SonarMapperNode(Node):
             'voxel_resolution': self.get_parameter('voxel_resolution').value,
             'min_probability': self.get_parameter('min_probability').value,
             'dynamic_expansion': self.get_parameter('dynamic_expansion').value,
+            'z_filter_min': self.get_parameter('z_filter_min').value,
+            'z_filter_enabled': self.get_parameter('z_filter_enabled').value,
             'adaptive_update': self.get_parameter('adaptive_update').value,
             'adaptive_threshold': self.get_parameter('adaptive_threshold').value,
             'adaptive_max_ratio': self.get_parameter('adaptive_max_ratio').value,
@@ -143,6 +151,7 @@ class SonarMapperNode(Node):
         self.base_frame_id = self.get_parameter('base_frame_id').value
         self.map_frame_id = self.get_parameter('map_frame_id').value
         self.publish_tf = self.get_parameter('publish_tf').value
+        self.show_opencv_visualization = self.get_parameter('show_opencv_visualization').value
         
         # Get topic names
         sonar_topic = self.get_parameter('sonar_topic').value
@@ -237,6 +246,51 @@ class SonarMapperNode(Node):
         self.get_logger().info(f'  Publishing to: {pointcloud_topic}')
         self.get_logger().info(f'  Time synchronization enabled with {0.1}s tolerance')
     
+    def visualize_with_threshold(self, sonar_image):
+        """
+        Visualize sonar image with intensity threshold applied
+        
+        Args:
+            sonar_image: Original sonar image as numpy array
+        """
+        # Create visualization image
+        viz_image = sonar_image.copy()
+        
+        # Apply threshold - create binary mask
+        threshold = self.mapper.intensity_threshold
+        thresholded = np.where(sonar_image > threshold, 255, 0).astype(np.uint8)
+        
+        # Convert to color for better visualization
+        # Original image in blue channel
+        original_colored = cv2.cvtColor(sonar_image, cv2.COLOR_GRAY2BGR)
+        
+        # Thresholded image in red channel  
+        thresholded_colored = np.zeros((sonar_image.shape[0], sonar_image.shape[1], 3), dtype=np.uint8)
+        thresholded_colored[:, :, 2] = thresholded  # Red channel for detected objects
+        
+        # Overlay: original + threshold highlights
+        overlay = cv2.addWeighted(original_colored, 0.6, thresholded_colored, 0.4, 0)
+        
+        # Add threshold value text
+        text = f"Intensity Threshold: {threshold}"
+        cv2.putText(overlay, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 
+                   0.7, (0, 255, 0), 2)
+        
+        # Add frame counter
+        frame_text = f"Frame: {self.frame_count}"
+        cv2.putText(overlay, frame_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX,
+                   0.7, (0, 255, 0), 2)
+        
+        # Create side-by-side view
+        combined = np.hstack([original_colored, overlay])
+        
+        # Show windows
+        cv2.imshow("Sonar: Original | Threshold Applied", combined)
+        cv2.imshow("Binary Threshold", thresholded)
+        
+        # Wait for 1ms to update display
+        cv2.waitKey(1)
+    
     def synchronized_callback(self, sonar_msg: Image, odom_msg: Odometry):
         """
         Process synchronized sonar image and odometry data
@@ -279,6 +333,10 @@ class SonarMapperNode(Node):
         stats = self.mapper.process_sonar_image(sonar_image, position, orientation)
         
         self.frame_count += 1
+        
+        # Show OpenCV visualization if enabled
+        if self.show_opencv_visualization:
+            self.visualize_with_threshold(sonar_image)
         
         # Store latest odometry for TF publishing
         self.latest_odometry = odom_msg
@@ -480,17 +538,22 @@ def main(args=None):
         pass
     finally:
         # Print final statistics
-        result = node.mapper.get_point_cloud()
-        node.get_logger().info(
-            f'\nFinal statistics:\n'
-            f'  Total frames: {result["frame_count"]}\n'
-            f'  Processed frames: {result["processed_count"]}\n'
-            f'  Total voxels: {result["num_voxels"]}\n'
-            f'  Occupied voxels: {result["num_occupied"]}'
-        )
+        if node:
+            try:
+                result = node.mapper.get_point_cloud()
+                node.get_logger().info(
+                    f'\nFinal statistics:\n'
+                    f'  Total frames: {result["frame_count"]}\n'
+                    f'  Processed frames: {result["processed_count"]}\n'
+                    f'  Total voxels: {result["num_voxels"]}\n'
+                    f'  Occupied voxels: {result["num_occupied"]}'
+                )
+                node.destroy_node()
+            except Exception:
+                pass
         
-        node.destroy_node()
-        rclpy.shutdown()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == '__main__':

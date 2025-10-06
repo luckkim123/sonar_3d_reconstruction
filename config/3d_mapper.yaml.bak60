@@ -13,7 +13,7 @@ sonar_3d_mapper:
     vertical_aperture: 20.0      # Vertical beam aperture in degrees
     max_range: 10.0              # Maximum sonar range in meters
     min_range: 0.5               # Minimum range to filter noise in meters
-    intensity_threshold: 80      # Intensity threshold for occupied detection (0-255)
+    intensity_threshold: 150      # Intensity threshold for occupied detection (0-255)
     
     # Sonar mounting configuration (relative to base_link)
     # IMPORTANT: This configuration assumes REAL WORLD sensor coordinates
@@ -41,7 +41,7 @@ sonar_3d_mapper:
     dynamic_expansion: true      # Enable dynamic map expansion without fixed bounds
     
     # Z-axis filtering (remove voxels below this height)
-    z_filter_min: -6.3           # Minimum Z value in meters (negative = below water surface)
+    z_filter_min: -5.0           # Minimum Z value in meters (negative = below water surface)
     z_filter_enabled: true       # Enable Z-axis filtering
     
     # Adaptive update parameters (protect free space from noise)

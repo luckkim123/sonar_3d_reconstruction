@@ -265,6 +265,10 @@ class SonarTo3DMapper:
         self.min_probability = default_config['min_probability']
         self.dynamic_expansion = default_config['dynamic_expansion']
         
+        # Z-axis filtering
+        self.z_filter_min = default_config.get('z_filter_min', -5.0)
+        self.z_filter_enabled = default_config.get('z_filter_enabled', False)
+        
         # Sonar mounting transform
         self.sonar_position = np.array(default_config['sonar_position'])
         self.sonar_orientation = np.array(default_config['sonar_orientation'])
@@ -431,6 +435,10 @@ class SonarTo3DMapper:
                 pt_sonar = np.array([x_sonar, y_sonar, z_sonar, 1.0])
                 pt_world = T_sonar_to_world @ pt_sonar
                 
+                # Apply Z-axis filter if enabled
+                if self.z_filter_enabled and pt_world[2] < self.z_filter_min:
+                    continue
+                
                 updates.append((pt_world[:3], self.octree.log_odds_free, 'free'))
         
         # Process occupied regions (dense)
@@ -449,14 +457,18 @@ class SonarTo3DMapper:
                     for v_step in range(-num_vertical, num_vertical + 1):
                         vertical_angle = (v_step / max(1, num_vertical)) * half_aperture
                         
-                        # Sonar coordinates
+                        # Sonar coordinates (X=forward, Y=right, Z=down)
                         x_sonar = range_m * np.cos(vertical_angle) * np.cos(bearing_angle)
-                        y_sonar = range_m * np.cos(vertical_angle) * np.sin(bearing_angle)
+                        y_sonar = -range_m * np.cos(vertical_angle) * np.sin(bearing_angle)
                         z_sonar = range_m * np.sin(vertical_angle)
                         
                         # Transform to world
                         pt_sonar = np.array([x_sonar, y_sonar, z_sonar, 1.0])
                         pt_world = T_sonar_to_world @ pt_sonar
+                        
+                        # Apply Z-axis filter if enabled
+                        if self.z_filter_enabled and pt_world[2] < self.z_filter_min:
+                            continue
                         
                         updates.append((pt_world[:3], self.octree.log_odds_occupied, 'occupied'))
         

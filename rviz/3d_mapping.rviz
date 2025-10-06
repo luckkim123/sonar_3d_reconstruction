@@ -6,7 +6,6 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /Sonar3DMap1
         - /Sonar3DMap1/Autocompute Value Bounds1
       Splitter Ratio: 0.5
     Tree Height: 752
@@ -27,7 +26,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: CloudMap
+    SyncSource: Sonar3DMap
 Visualization Manager:
   Class: ""
   Displays:
@@ -97,8 +96,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 3.685256242752075
-        Min Value: -1.6112478971481323
+        Max Value: 3.19953989982605
+        Min Value: -1.676807165145874
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -106,7 +105,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: AxisColor
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 255
@@ -127,13 +126,13 @@ Visualization Manager:
         Value: /fast_lio/map
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 0.10000000149011612
-        Min Value: -7.900000095367432
-        Value: true
+        Max Value: -1
+        Min Value: -6.699999809265137
+        Value: false
       Axis: Z
       Channel Name: intensity
       Class: rviz_default_plugins/PointCloud2
@@ -150,8 +149,8 @@ Visualization Manager:
       Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 5
-      Size (m): 0.10000000149011612
-      Style: Flat Squares
+      Size (m): 0.20000000298023224
+      Style: Squares
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -161,6 +160,34 @@ Visualization Manager:
         Value: /sonar_3d_map
       Use Fixed Frame: true
       Use rainbow: true
+      Value: true
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz_default_plugins/Path
+      Color: 25; 255; 0
+      Enabled: true
+      Head Diameter: 0.30000001192092896
+      Head Length: 0.20000000298023224
+      Length: 0.30000001192092896
+      Line Style: Lines
+      Line Width: 0.029999999329447746
+      Name: Path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.029999999329447746
+      Shaft Diameter: 0.10000000149011612
+      Shaft Length: 0.10000000149011612
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /fast_lio/path
       Value: true
   Enabled: true
   Global Options:
@@ -208,25 +235,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 8.796876907348633
+      Distance: 38.074440002441406
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -1.431052565574646
-        Y: -0.7017138004302979
-        Z: -3.0882790088653564
+        X: 0.8600106239318848
+        Y: -2.767545700073242
+        Z: -7.961326599121094
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.26979783177375793
+      Pitch: 1.0447969436645508
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz_default_plugins)
-      Yaw: 3.063549757003784
+      Yaw: 2.5785980224609375
     Saved: ~
 Window Geometry:
   Displays:
