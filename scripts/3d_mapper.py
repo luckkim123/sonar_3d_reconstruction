@@ -303,6 +303,10 @@ class SonarTo3DMapper:
         self.frame_count = 0
         self.processed_frame_count = 0
         
+        # Debug: Track update counts per voxel
+        self.voxel_update_counts = defaultdict(int)
+        self.frame_update_counts = defaultdict(int)  # Updates in current frame
+        
         # Processing statistics
         self.last_processing_time = 0.0
         self.total_processing_time = 0.0
@@ -447,6 +451,10 @@ class SonarTo3DMapper:
             for r_idx in range(first_hit_idx, min(first_hit_idx + 50, len(intensity_profile))):
                 if intensity_profile[r_idx] > self.intensity_threshold:
                     range_m = r_idx * range_resolution
+                    
+                    # Check both min and max range
+                    if range_m < self.min_range:
+                        continue
                     if range_m > self.max_range:
                         break
                     
@@ -514,6 +522,7 @@ class SonarTo3DMapper:
         
         # Accumulate updates per voxel
         voxel_updates = defaultdict(lambda: {'sum': 0.0, 'count': 0, 'type': 'unknown'})
+        self.frame_update_counts.clear()  # Reset for this frame
         
         # Process subset of bearings for efficiency
         bearing_step = max(1, bearing_bins // 256)
@@ -536,6 +545,10 @@ class SonarTo3DMapper:
                     voxel_updates[key]['type'] = update_type
                 voxel_updates[key]['sum'] += log_odds
                 voxel_updates[key]['count'] += 1
+                
+                # Debug: Track updates
+                self.frame_update_counts[key] += 1
+                self.voxel_update_counts[key] += 1
         
         # Apply averaged updates to octree
         num_occupied = 0
@@ -557,6 +570,19 @@ class SonarTo3DMapper:
         processing_time = time.time() - start_time
         self.last_processing_time = processing_time
         self.total_processing_time += processing_time
+        
+        # Debug statistics
+        if self.frame_update_counts:
+            max_updates_frame = max(self.frame_update_counts.values())
+            avg_updates_frame = sum(self.frame_update_counts.values()) / len(self.frame_update_counts)
+            max_updates_total = max(self.voxel_update_counts.values())
+            
+            if self.frame_count % 10 == 0:  # Log every 10 frames
+                print(f"[DEBUG] Frame {self.frame_count}:")
+                print(f"  Max updates in frame: {max_updates_frame}")
+                print(f"  Avg updates in frame: {avg_updates_frame:.1f}")
+                print(f"  Max total updates: {max_updates_total}")
+                print(f"  Voxels with >10 updates in frame: {sum(1 for v in self.frame_update_counts.values() if v > 10)}")
         
         return {
             'frame_count': self.frame_count,

@@ -40,6 +40,9 @@ def generate_launch_description():
     launch_rviz = LaunchConfiguration('launch_rviz')
     play_bag = LaunchConfiguration('play_bag')
     bag_file = LaunchConfiguration('bag_file')
+    bag_playback_rate = LaunchConfiguration('bag_playback_rate')
+    record_bag = LaunchConfiguration('record_bag')
+    record_output_path = LaunchConfiguration('record_output_path')
     
     # Sonar orientation parameters
     sonar_roll = LaunchConfiguration('sonar_orientation.roll')
@@ -75,6 +78,24 @@ def generate_launch_description():
         'bag_file',
         default_value=yaml_params.get('bag_file', '/workspace/data/2_kiro_watertank/20250926_blueboat_sonar_lidar/oculus-tilt90-gain50-freq2'),
         description='Path to ROS2 bag file'
+    )
+    
+    declare_bag_playback_rate_cmd = DeclareLaunchArgument(
+        'bag_playback_rate',
+        default_value=str(yaml_params.get('bag_playback_rate', 1.0)),
+        description='Bag playback rate (1.0 = normal, 0.5 = half speed, 2.0 = double speed)'
+    )
+    
+    declare_record_bag_cmd = DeclareLaunchArgument(
+        'record_bag',
+        default_value='false',
+        description='Record ROS2 bag file during mapping'
+    )
+    
+    declare_record_output_path_cmd = DeclareLaunchArgument(
+        'record_output_path',
+        default_value='/workspace/data/recorded_mapping',
+        description='Path to save recorded bag file'
     )
     
     # Declare sonar orientation arguments
@@ -142,11 +163,18 @@ def generate_launch_description():
         condition=IfCondition(launch_rviz)
     )
     
-    # Bag player process
+    # Bag player process with playback rate
     bag_player = ExecuteProcess(
-        cmd=['ros2', 'bag', 'play', bag_file, '--clock'],
+        cmd=['ros2', 'bag', 'play', bag_file, '--clock', '--rate', bag_playback_rate],
         output='screen',
         condition=IfCondition(play_bag)
+    )
+    
+    # Bag recorder process
+    bag_recorder = ExecuteProcess(
+        cmd=['ros2', 'bag', 'record', '-a', '-o', record_output_path],
+        output='screen',
+        condition=IfCondition(record_bag)
     )
     
     # Create launch description
@@ -158,6 +186,9 @@ def generate_launch_description():
     ld.add_action(declare_launch_rviz_cmd)
     ld.add_action(declare_play_bag_cmd)
     ld.add_action(declare_bag_file_cmd)
+    ld.add_action(declare_bag_playback_rate_cmd)
+    ld.add_action(declare_record_bag_cmd)
+    ld.add_action(declare_record_output_path_cmd)
     ld.add_action(declare_sonar_roll_cmd)
     ld.add_action(declare_sonar_pitch_cmd)
     ld.add_action(declare_sonar_yaw_cmd)
@@ -167,5 +198,6 @@ def generate_launch_description():
     ld.add_action(mapper_node)
     ld.add_action(rviz_node)
     ld.add_action(bag_player)
+    ld.add_action(bag_recorder)
     
     return ld

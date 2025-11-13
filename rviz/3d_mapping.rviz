@@ -130,9 +130,9 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: -1
-        Min Value: -6.699999809265137
-        Value: false
+        Max Value: -2.174999952316284
+        Min Value: -6.224999904632568
+        Value: true
       Axis: Z
       Channel Name: intensity
       Class: rviz_default_plugins/PointCloud2
@@ -149,7 +149,7 @@ Visualization Manager:
       Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 5
-      Size (m): 0.20000000298023224
+      Size (m): 0.15000000596046448
       Style: Squares
       Topic:
         Depth: 5
@@ -235,25 +235,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 38.074440002441406
+      Distance: 13.113105773925781
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.8600106239318848
-        Y: -2.767545700073242
-        Z: -7.961326599121094
+        X: 3.2933461666107178
+        Y: -4.074955463409424
+        Z: -4.2518229484558105
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.0447969436645508
+      Pitch: 0.33979684114456177
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz_default_plugins)
-      Yaw: 2.5785980224609375
+      Yaw: 2.434856653213501
     Saved: ~
 Window Geometry:
   Displays:

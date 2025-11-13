@@ -12,8 +12,8 @@ sonar_3d_mapper:
     horizontal_fov: 70.0        # Horizontal field of view in degrees
     vertical_aperture: 20.0      # Vertical beam aperture in degrees
     max_range: 10.0              # Maximum sonar range in meters
-    min_range: 0.5               # Minimum range to filter noise in meters
-    intensity_threshold: 150      # Intensity threshold for occupied detection (0-255)
+    min_range: 1.0               # Minimum range to filter noise in meters
+    intensity_threshold: 120      # Intensity threshold for occupied detection (0-255)
     
     # Sonar mounting configuration (relative to base_link)
     # IMPORTANT: This configuration assumes REAL WORLD sensor coordinates
@@ -36,12 +36,12 @@ sonar_3d_mapper:
       # yaw: 180.0               # Flip Y axis (left/right)
     
     # Octree voxel storage parameters
-    voxel_resolution: 0.2        # Voxel size in meters (20cm) - TEST
-    min_probability: 0.6         # Minimum probability to consider voxel occupied
+    voxel_resolution: 0.15        # Voxel size in meters (20cm) - TEST
+    min_probability: 0.7         # Minimum probability to consider voxel occupied
     dynamic_expansion: true      # Enable dynamic map expansion without fixed bounds
     
     # Z-axis filtering (remove voxels below this height)
-    z_filter_min: -5.0           # Minimum Z value in meters (negative = below water surface)
+    z_filter_min: -6.3           # Minimum Z value in meters (negative = below water surface)
     z_filter_enabled: true       # Enable Z-axis filtering
     
     # Adaptive update parameters (protect free space from noise)
@@ -50,10 +50,10 @@ sonar_3d_mapper:
     adaptive_max_ratio: 0.3      # Maximum update ratio at threshold
     
     # Log-odds Bayesian update parameters
-    log_odds_occupied: 2.0       # Log-odds increment for occupied voxel
-    log_odds_free: -1.0          # Log-odds decrement for free space
+    log_odds_occupied: 0.5       # Log-odds increment for occupied voxel (reduced to prevent saturation)
+    log_odds_free: -0.1          # Log-odds decrement for free space
     log_odds_min: -10.0          # Minimum log-odds value (clamping)
-    log_odds_max: 10.0           # Maximum log-odds value (clamping)
+    log_odds_max: 7.0           # Maximum log-odds value (clamping)
     
     # Publishing parameters
     show_free_space: false       # Show free space voxels in MarkerArray
@@ -81,3 +81,4 @@ sonar_3d_mapper:
     launch_rviz: true            # Launch RViz for visualization
     play_bag: true              # Auto-play bag file
     bag_file: "/workspace/data/2_kiro_watertank/20250926_blueboat_sonar_lidar/oculus-tilt60-gain50-freq2"
+    bag_playback_rate: 0.5      # Playback speed (1.0 = normal, 0.5 = half speed, 2.0 = double speed)
