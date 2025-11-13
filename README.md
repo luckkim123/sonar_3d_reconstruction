@@ -175,26 +175,98 @@ ros2 launch sonar_3d_reconstruction 3d_mapping.launch.py \
 
 ## Build & Development
 
-### Dependencies
-- ROS2 Humble
-- PCL (Point Cloud Library)
-- Eigen3
-- OpenCV (cv_bridge)
-- Python 3.10+
+### System Dependencies
+- **OS**: Ubuntu 22.04 LTS
+- **ROS2**: Humble Hawksbill
+- **Python**: 3.10+
+
+### ROS2 Dependencies
+
+#### Core Dependencies
+- `rclpy`: Python ROS2 client library
+- `rclcpp`: C++ ROS2 client library
+- `ament_cmake`: ROS2 build system
+- `ament_cmake_python`: Python package support
+
+#### Message & Communication
+- `std_msgs`: Standard message types
+- `sensor_msgs`: Sensor data messages (Image, PointCloud2, PointField)
+- `geometry_msgs`: Geometry messages (TransformStamped)
+- `nav_msgs`: Navigation messages (Odometry)
+- `visualization_msgs`: Visualization messages (Marker, MarkerArray)
+
+#### Custom Sensor Messages (빌드 순서 중요)
+- `marine_acoustic_msgs`: 해양 음향 센서 공통 메시지
+- `oculus_sonar_msgs`: Oculus M750D 소나 전용 메시지
+- `ping360_sonar_msgs`: Ping360 소나 전용 메시지
+
+#### Point Cloud & Transformation
+- `pcl_ros`: Point Cloud Library ROS2 integration
+- `tf2_ros`: TF2 transformation system
+- `tf2_eigen`: TF2-Eigen integration
+
+#### Time Synchronization
+- `message_filters`: Time synchronization utilities
+- `cv_bridge`: OpenCV-ROS image conversion
+
+#### Python Dependencies
+- `python3-numpy`: Numerical computing
+- `python3-scipy`: Scientific computing
+- `python3-opencv`: Computer vision library
+- `python3-matplotlib`: Plotting library
+- `python3-yaml`: YAML file parsing
+
+#### Runtime Sensor Drivers
+- `oculus_sonar`: Oculus M750D driver
+- `ping360_sonar`: Ping360 driver
+- `fast_lio`: Fast-LIO SLAM system
+
+#### Visualization
+- `rviz2`: 3D visualization tool
 
 ### Build Instructions
+
 ```bash
-# 의존성 설치
-sudo apt update
-sudo apt install ros-humble-pcl-* ros-humble-cv-bridge
-
-# 빌드
-cd /workspace/ros2_ws
-colcon build --packages-select sonar_3d_reconstruction
-
-# 환경 설정
+# 1. ROS2 환경 설정
 source /opt/ros/humble/setup.bash
-source /workspace/ros2_ws/install/setup.bash
+
+# 2. 의존성 자동 설치 (rosdep)
+cd /workspace/ros2_ws
+rosdep update
+rosdep install --from-paths src --ignore-src -r -y
+
+# 3. 메시지 패키지 먼저 빌드 (순서 중요)
+colcon build --packages-select marine_acoustic_msgs oculus_sonar_msgs ping360_sonar_msgs
+
+# 4. 전체 workspace 빌드
+colcon build
+
+# 5. 환경 설정
+source install/setup.bash
+```
+
+### Manual Dependencies Installation
+
+```bash
+# ROS2 Humble dependencies
+sudo apt update
+sudo apt install -y \
+  ros-humble-pcl-ros \
+  ros-humble-tf2-ros \
+  ros-humble-tf2-eigen \
+  ros-humble-cv-bridge \
+  ros-humble-message-filters \
+  ros-humble-visualization-msgs \
+  ros-humble-nav-msgs \
+  ros-humble-rviz2
+
+# Python dependencies
+sudo apt install -y \
+  python3-numpy \
+  python3-scipy \
+  python3-opencv \
+  python3-matplotlib \
+  python3-yaml
 ```
 
 ### Development Mode
@@ -238,20 +310,101 @@ max_range: 5.0  # 10.0 → 5.0
 - **Synchronization**: ±0.1s 타임스탬프 매칭
 - **Voxel Resolution**: 0.05m (설정 가능)
 
-## Recent Updates (2025-09-29)
+## Package Architecture
 
-### Complete Refactoring
-- ✅ feature_extraction_3d 기반 재구현
-- ✅ Adaptive update 메커니즘 추가
-- ✅ Fast-LIO TF tree 완전 통합
-- ✅ 소스 YAML 직접 참조 (빌드 불필요)
-- ✅ 파라미터 우선순위 시스템 구현
-- ✅ 향상된 로깅 및 시각화
+### File Structure
+```
+sonar_3d_reconstruction/
+├── CMakeLists.txt              # CMake build configuration
+├── package.xml                 # ROS2 package metadata & dependencies
+├── README.md                   # This documentation
+├── config/
+│   ├── 3d_mapper.yaml         # Main configuration file
+│   ├── 3d_mapper.yaml.bak60   # Backup configuration (60° tilt)
+│   └── 3d_mapper.yaml.bak90   # Backup configuration (90° tilt)
+├── include/
+│   └── sonar_3d_reconstruction/  # C++ headers (if needed)
+├── launch/
+│   └── 3d_mapping.launch.py    # Main launch file
+├── rviz/
+│   └── 3d_mapping.rviz        # RViz configuration
+├── scripts/
+│   ├── 3d_mapper.py           # Core mapping library
+│   └── 3d_mapper_node.py      # ROS2 node implementation
+└── src/                        # C++ sources (if needed)
+```
 
-### Breaking Changes
-- ❌ octree_mapper_node.py → 3d_mapper_node.py
-- ❌ mapping.launch.py → 3d_mapping.launch.py
-- ❌ test/ 폴더 제거 (통합 완료)
+### Import Dependencies (Python)
+
+#### Standard Libraries
+```python
+import numpy as np              # 수치 계산
+import time                     # 성능 측정
+import struct                   # 바이너리 데이터 패킹
+import sys, os                  # 시스템 유틸리티
+import importlib.util           # 동적 모듈 로딩
+from collections import defaultdict  # 기본값 딕셔너리
+from typing import Tuple, List, Dict, Any, Optional  # 타입 힌트
+```
+
+#### ROS2 Core
+```python
+import rclpy                    # ROS2 Python client
+from rclpy.node import Node     # 노드 기본 클래스
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy  # QoS 설정
+```
+
+#### ROS2 Messages
+```python
+from sensor_msgs.msg import Image, PointCloud2, PointField
+from nav_msgs.msg import Odometry
+from std_msgs.msg import Header
+from geometry_msgs.msg import TransformStamped
+from visualization_msgs.msg import MarkerArray, Marker
+```
+
+#### ROS2 Utilities
+```python
+from tf2_ros import StaticTransformBroadcaster  # TF 변환 브로드캐스터
+from message_filters import Subscriber, ApproximateTimeSynchronizer  # 메시지 동기화
+from cv_bridge import CvBridge  # OpenCV-ROS 변환
+import cv2                      # OpenCV 이미지 처리
+```
+
+#### Launch System
+```python
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.conditions import IfCondition
+from launch_ros.actions import Node
+from ament_index_python.packages import get_package_share_directory
+import yaml                     # YAML 설정 파일 파싱
+```
+
+## Recent Updates (2025-11-13)
+
+### Dependencies Documentation Update
+- 전체 의존성 목록 체계적 정리
+- Build order 명시 (메시지 패키지 우선)
+- Python import 구조 상세 문서화
+- rosdep 기반 자동 설치 가이드 추가
+
+### Previous Updates (2025-09-29)
+
+#### Complete Refactoring
+- feature_extraction_3d 기반 재구현
+- Adaptive update 메커니즘 추가
+- Fast-LIO TF tree 완전 통합
+- 소스 YAML 직접 참조 (빌드 불필요)
+- 파라미터 우선순위 시스템 구현
+- 향상된 로깅 및 시각화
+
+#### Breaking Changes
+- octree_mapper_node.py → 3d_mapper_node.py
+- mapping.launch.py → 3d_mapping.launch.py
+- test/ 폴더 제거 (통합 완료)
 
 ## License & Contact
 
